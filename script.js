@@ -110,7 +110,7 @@ function submitForm() {
     const q5 = document.getElementById('q5').value;
 
     if(!name || !q1 || !q2 || !q3 || !q4 || !q5) {
-        alert("Пожалуйста, заполните все поля!");
+        alert(translations[currentLang].errorEmpty);
         return;
     }
 
