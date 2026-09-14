@@ -130,6 +130,24 @@
             <div class="badge">Скоро</div>
         </div>
     </div>
+<!-- Секретная кнопка для разработчика -->
+    <div onclick="checkAdminCode()" style="position: fixed; bottom: 15px; right: 15px; font-size: 1.5rem; opacity: 0.1; cursor: pointer; transition: 0.3s; z-index: 1000;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.1" title="Панель разработчика">
+        ⚙️
+    </div>
 
+    <script>
+        function checkAdminCode() {
+            // Вызываем стандартное окно ввода текста
+            const code = prompt("Система управления. Введите PIN-код:");
+            
+            // Проверяем пароль. Сейчас стоит "8080", можете поменять на любой другой
+            if (code === "8080") {
+                window.location.href = "dashboard.html";
+            } else if (code !== null) { 
+                // Если ввели неправильно (и не нажали "Отмена")
+                alert("Ошибка доступа! Вы не модератор 🛑");
+            }
+        }
+    </script>
 </body>
 </html>
