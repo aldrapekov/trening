@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Анкета участника | Угадай кто</title>
+    <!-- Подключаем Firebase (версия 8 для совместимости с вашим старым кодом) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+        h2 { text-align: center; color: #6a1b9a; margin-top: 0; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 0.95rem; }
+        input, textarea {
+            width: 100%; padding: 10px; box-sizing: border-box;
+            border: 1px solid #ccc; border-radius: 6px; font-family: inherit;
+        }
+        button {
+            width: 100%; padding: 12px; background-color: #6a1b9a;
+            color: white; border: none; border-radius: 6px; font-size: 1.1rem;
+            cursor: pointer; transition: 0.3s;
+        }
+        button:hover { background-color: #4a148c; }
+        #successMessage { display: none; text-align: center; color: green; font-size: 1.2rem; margin-top: 50px;}
+    </style>
+</head>
+<body>
+
+    <div class="form-container" id="formContainer">
+        <h2>Анкета инкогнито 🕵️‍♂️</h2>
+        <p style="text-align: center; color: #666; margin-bottom: 25px;">Заполните профиль. Ваше имя будет скрыто до самого конца!</p>
+        
+        <div class="form-group">
+            <label>Ваше Имя и Фамилия</label>
+            <input type="text" id="qName" placeholder="Например: Иван Иванов" required>
+        </div>
+        <div class="form-group">
+            <label>1. Ваша главная IT-суперспособность в школе?</label>
+            <input type="text" id="q1" placeholder="Чиню принтер взглядом..." required>
+        </div>
+        <div class="form-group">
+            <label>2. Если не информатика, то какой предмет вели бы?</label>
+            <input type="text" id="q2" placeholder="Физкультура, потому что..." required>
+        </div>
+        <div class="form-group">
+            <label>3. Как отдыхаете от мониторов на выходных?</label>
+            <textarea id="q3" rows="2" placeholder="Копаюсь в машине, играю в настолки..." required></textarea>
+        </div>
+        <div class="form-group">
+            <label>4. Любимая видеоигра, настолка или вселенная?</label>
+            <input type="text" id="q4" placeholder="D&D, CS2, Cyberpunk 2077..." required>
+        </div>
+        <div class="form-group">
+            <label>5. Ваше коронное блюдо для гостей?</label>
+            <input type="text" id="q5" placeholder="Пеку вафли, варю казы..." required>
+        </div>
+        <button onclick="submitForm()">Отправить инкогнито</button>
+    </div>
+
+    <div id="successMessage">
+        <h2>✅ Принято!</h2>
+        <p>Ваша анкета улетела на главный экран.<br>Ждем начала игры!</p>
+    </div>
+
+    <script>
+        // ВСТАВЬТЕ СЮДА ВАШ КОНФИГ ИЗ ПРОЕКТА С КАРТОЧКАМИ!
+        const firebaseConfig = {
+            apiKey: "ВАШ_API_KEY",
+            authDomain: "ВАШ_PROJECT.firebaseapp.com",
+            databaseURL: "ВАШ_DATABASE_URL",
+            projectId: "ВАШ_PROJECT_ID",
+            storageBucket: "ВАШ_BUCKET",
+            messagingSenderId: "ВАШ_SENDER_ID",
+            appId: "ВАШ_APP_ID"
+        };
+        
+        // Инициализация
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        function submitForm() {
+            const name = document.getElementById('qName').value;
+            const q1 = document.getElementById('q1').value;
+            const q2 = document.getElementById('q2').value;
+            const q3 = document.getElementById('q3').value;
+            const q4 = document.getElementById('q4').value;
+            const q5 = document.getElementById('q5').value;
+
+            if(!name || !q1 || !q2 || !q3 || !q4 || !q5) {
+                alert("Пожалуйста, заполните все поля!");
+                return;
+            }
+
+            // Отправляем данные в НОВУЮ ветку training_profiles
+            db.ref("training_profiles").push({
+                name: name,
+                q1: q1,
+                q2: q2,
+                q3: q3,
+                q4: q4,
+                q5: q5
+            }).then(() => {
+                document.getElementById('formContainer').style.display = 'none';
+                document.getElementById('successMessage').style.display = 'block';
+            });
+        }
+    </script>
+</body>
+</html>
