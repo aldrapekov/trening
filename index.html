@@ -5,147 +5,115 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Выбор тренинга</title>
     <style>
-        /* Базовые стили, чтобы страница выглядела аккуратно */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            color: #333;
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: #333; }
+        
+        /* Кнопка назад и переключатель языков */
+        .top-controls { position: fixed; top: 20px; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; box-sizing: border-box; z-index: 1000; }
+        .back-button { background-color: white; color: #6a1b9a; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 0.95rem; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); transition: all 0.3s ease; border: 1px solid #eee; display: flex; align-items: center; }
+        .back-button:hover { background-color: #6a1b9a; color: white; transform: translateY(-2px); }
+        .lang-switcher { display: flex; gap: 5px; }
+        .lang-switcher button { padding: 6px 12px; background-color: white; color: #6a1b9a; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .lang-switcher button:hover { background-color: #6a1b9a; color: white; border-color: #6a1b9a; }
 
-        h1 {
-            margin-top: 60px;
-            margin-bottom: 40px;
-            font-size: 2rem;
-            font-weight: 600;
-            text-align: center;
-            color: #2c3e50;
-        }
-
-        /* Сетка для карточек */
-        .cards-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 25px;
-            width: 100%;
-            max-width: 900px;
-            padding: 0 20px;
-        }
-
-        /* Общий стиль для всех прямоугольников */
-        .card {
-            background-color: white;
-            border-radius: 16px;
-            padding: 40px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            border: 2px solid transparent;
-        }
-
-        /* Стиль для активной карточки "Угадай кто" */
-        .card.active {
-            color: #333;
-            cursor: pointer;
-            /* Фиолетовый акцент, чтобы гармонировать с шапкой вашего сайта */
-            border-color: #6a1b9a; 
-        }
-
-        .card.active:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 10px 25px rgba(106, 27, 154, 0.2);
-            background-color: #faf5ff;
-        }
-
-        /* Стиль для неактивных карточек "Скоро" */
-        .card.disabled {
-            background-color: #e9ecef;
-            color: #a0a0a0;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        .icon {
-            font-size: 3.5rem;
-            margin-bottom: 15px;
-        }
-
-        .title {
-            font-size: 1.3rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        /* Плашка "Скоро" */
-        .badge {
-            background-color: #adb5bd;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 5px;
-        }
+        h1 { margin-top: 80px; margin-bottom: 40px; font-size: 2rem; font-weight: 600; text-align: center; color: #2c3e50; }
+        .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; width: 100%; max-width: 900px; padding: 0 20px; }
+        .card { background-color: white; border-radius: 16px; padding: 40px 20px; text-align: center; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); border: 2px solid transparent; }
+        .card.active { color: #333; cursor: pointer; border-color: #6a1b9a; }
+        .card.active:hover { transform: translateY(-8px); box-shadow: 0 10px 25px rgba(106, 27, 154, 0.2); background-color: #faf5ff; }
+        .card.disabled { background-color: #e9ecef; color: #a0a0a0; cursor: not-allowed; box-shadow: none; }
+        .icon { font-size: 3.5rem; margin-bottom: 15px; }
+        .title { font-size: 1.3rem; font-weight: bold; margin-bottom: 10px; }
+        .badge { background-color: #adb5bd; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
     </style>
 </head>
 <body>
 
-    <h1>Выберите формат интерактива</h1>
+    <div class="top-controls">
+        <a href="https://aldrapekov.github.io/" class="back-button" data-i18n="homeBtn">🏠 Главная</a>
+        <div class="lang-switcher">
+            <button onclick="setLanguage('kk')">KZ</button>
+            <button onclick="setLanguage('ru')">RU</button>
+            <button onclick="setLanguage('en')">EN</button>
+        </div>
+    </div>
+
+    <h1 data-i18n="mainTitle">Выберите формат интерактива</h1>
 
     <div class="cards-container">
-        <!-- Активная карточка (ведет на анкету) -->
+        <!-- Активная карточка -->
         <a href="icebreaker.html" class="card active">
             <div class="icon">🎭</div>
-            <div class="title">Угадай кто</div>
+            <div class="title" data-i18n="card1">Угадай кто</div>
         </a>
 
         <!-- Неактивные карточки -->
         <div class="card disabled">
             <div class="icon">🧠</div>
-            <div class="title">Нейро-штурм</div>
-            <div class="badge">Скоро</div>
+            <div class="title" data-i18n="card2">Нейро-штурм</div>
+            <div class="badge" data-i18n="badgeSoon">Скоро</div>
         </div>
 
         <div class="card disabled">
             <div class="icon">⚡</div>
-            <div class="title">Блиц-опрос</div>
-            <div class="badge">Скоро</div>
+            <div class="title" data-i18n="card3">Блиц-опрос</div>
+            <div class="badge" data-i18n="badgeSoon">Скоро</div>
         </div>
 
         <div class="card disabled">
             <div class="icon">🧩</div>
-            <div class="title">Командный пазл</div>
-            <div class="badge">Скоро</div>
+            <div class="title" data-i18n="card4">Командный пазл</div>
+            <div class="badge" data-i18n="badgeSoon">Скоро</div>
         </div>
     </div>
-<!-- Секретная кнопка для разработчика -->
-    <div onclick="checkAdminCode()" style="position: fixed; bottom: 15px; right: 15px; font-size: 1.5rem; opacity: 50; cursor: pointer; transition: 0.3s; z-index: 1000;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.1" title="Панель разработчика">
+
+    <!-- Секретная кнопка для ведущего -->
+    <div onclick="checkAdminCode()" style="position: fixed; bottom: 15px; right: 15px; font-size: 1.5rem; opacity: 0.1; cursor: pointer; transition: 0.3s; z-index: 1000;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.1" title="Панель разработчика">
         ⚙️
     </div>
 
     <script>
+        const translations = {
+            ru: {
+                homeBtn: "🏠 Главная", mainTitle: "Выберите формат интерактива", card1: "Угадай кто",
+                card2: "Нейро-штурм", card3: "Блиц-опрос", card4: "Командный пазл", badgeSoon: "Скоро",
+                promptAdmin: "Система управления. Введите PIN-код:", alertErr: "Ошибка доступа! Вы не модератор 🛑"
+            },
+            kk: {
+                homeBtn: "🏠 Басты бет", mainTitle: "Интерактив форматын таңдаңыз", card1: "Кім екенін тап",
+                card2: "Нейро-шабуыл", card3: "Блиц-сауалнама", card4: "Командалық пазл", badgeSoon: "Жақында",
+                promptAdmin: "Басқару жүйесі. PIN-кодты енгізіңіз:", alertErr: "Қатынас қатесі! Сіз модератор емессіз 🛑"
+            },
+            en: {
+                homeBtn: "🏠 Home", mainTitle: "Select interactive format", card1: "Guess Who",
+                card2: "Neuro-storm", card3: "Blitz Poll", card4: "Team Puzzle", badgeSoon: "Soon",
+                promptAdmin: "Control System. Enter PIN code:", alertErr: "Access Error! You are not a moderator 🛑"
+            }
+        };
+
+        let currentLang = 'ru';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    el.innerHTML = translations[lang][key];
+                }
+            });
+            localStorage.setItem('siteLanguage', lang);
+        }
+
+        window.onload = () => {
+            const savedLang = localStorage.getItem('siteLanguage') || 'ru';
+            setLanguage(savedLang);
+        };
+
         function checkAdminCode() {
-            // Вызываем стандартное окно ввода текста
-            const code = prompt("Система управления. Введите PIN-код:");
-            
-            // Проверяем пароль. Сейчас стоит "8080", можете поменять на любой другой
+            const code = prompt(translations[currentLang].promptAdmin);
             if (code === "8080") {
                 window.location.href = "dashboard.html";
             } else if (code !== null) { 
-                // Если ввели неправильно (и не нажали "Отмена")
-                alert("Ошибка доступа! Вы не модератор 🛑");
+                alert(translations[currentLang].alertErr);
             }
         }
     </script>
