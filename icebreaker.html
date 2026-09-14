@@ -4,48 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Анкета участника | Угадай кто</title>
-    <!-- Подключаем Firebase (версия 8 для совместимости с вашим старым кодом) -->
+    
+    <!-- Подключение внешнего файла стилей -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Подключение Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            padding: 20px;
-        }
-        .form-container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            max-width: 500px;
-            width: 100%;
-        }
-        h2 { text-align: center; color: #6a1b9a; margin-top: 0; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 0.95rem; }
-        input, textarea {
-            width: 100%; padding: 10px; box-sizing: border-box;
-            border: 1px solid #ccc; border-radius: 6px; font-family: inherit;
-        }
-        button {
-            width: 100%; padding: 12px; background-color: #6a1b9a;
-            color: white; border: none; border-radius: 6px; font-size: 1.1rem;
-            cursor: pointer; transition: 0.3s;
-        }
-        button:hover { background-color: #4a148c; }
-        #successMessage { display: none; text-align: center; color: green; font-size: 1.2rem; margin-top: 50px;}
-    </style>
+    <!-- Подключение нашего внешнего файла скриптов (defer означает, что скрипт загрузится после HTML) -->
+    <script src="script.js" defer></script>
 </head>
 <body>
 
+    <!-- Кнопка возврата в главный хаб -->
+    <a href="https://aldrapekov.github.io/" class="back-button">
+        🏠 Главная
+    </a>
+
     <div class="form-container" id="formContainer">
         <h2>Анкета инкогнито 🕵️‍♂️</h2>
-        <p style="text-align: center; color: #666; margin-bottom: 25px;">Заполните профиль. Ваше имя будет скрыто до самого конца!</p>
+        <p class="subtitle">Заполните профиль. Ваше имя будет скрыто до самого конца!</p>
         
         <div class="form-group">
             <label>Ваше Имя и Фамилия</label>
@@ -79,49 +58,5 @@
         <p>Ваша анкета улетела на главный экран.<br>Ждем начала игры!</p>
     </div>
 
-    <script>
-        // ВСТАВЬТЕ СЮДА ВАШ КОНФИГ ИЗ ПРОЕКТА С КАРТОЧКАМИ!
-        const firebaseConfig = {
-          apiKey: "AIzaSyDPN8eYRrU3JbBRs12MeROOu3zd7o9QIgU",
-          authDomain: "kartochki-ade77.firebaseapp.com",
-          databaseURL: "https://kartochki-ade77-default-rtdb.europe-west1.firebasedatabase.app",
-          projectId: "kartochki-ade77",
-          storageBucket: "kartochki-ade77.firebasestorage.app",
-          messagingSenderId: "467392945380",
-          appId: "1:467392945380:web:cd7bb9d8c4f2998003e0f1",
-          measurementId: "G-NY9BN4G7LT"
-        };
-        
-        // Инициализация
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        function submitForm() {
-            const name = document.getElementById('qName').value;
-            const q1 = document.getElementById('q1').value;
-            const q2 = document.getElementById('q2').value;
-            const q3 = document.getElementById('q3').value;
-            const q4 = document.getElementById('q4').value;
-            const q5 = document.getElementById('q5').value;
-
-            if(!name || !q1 || !q2 || !q3 || !q4 || !q5) {
-                alert("Пожалуйста, заполните все поля!");
-                return;
-            }
-
-            // Отправляем данные в НОВУЮ ветку training_profiles
-            db.ref("training_profiles").push({
-                name: name,
-                q1: q1,
-                q2: q2,
-                q3: q3,
-                q4: q4,
-                q5: q5
-            }).then(() => {
-                document.getElementById('formContainer').style.display = 'none';
-                document.getElementById('successMessage').style.display = 'block';
-            });
-        }
-    </script>
 </body>
 </html>
