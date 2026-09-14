@@ -8,108 +8,116 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #2c3e50; /* Темный фон для проектора */
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #2c3e50; color: white; display: flex; flex-direction: column; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
         
-        h1 { margin-top: 30px; font-size: 2.5rem; }
-        
-        .controls { margin-bottom: 30px; }
-        .controls button {
-            padding: 10px 20px; font-size: 1.2rem; cursor: pointer;
-            background-color: #27ae60; color: white; border: none;
-            border-radius: 8px; margin: 0 10px;
-        }
+        /* Кнопка назад и переключатель языков (Адаптация под темный фон) */
+        .top-controls { position: fixed; top: 20px; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; box-sizing: border-box; z-index: 1000; }
+        .back-button { background-color: rgba(255,255,255,0.1); color: white; padding: 8px 14px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.3); transition: 0.3s; display: flex; align-items: center; }
+        .back-button:hover { background-color: white; color: #2c3e50; }
+        .lang-switcher { display: flex; gap: 5px; }
+        .lang-switcher button { padding: 6px 12px; background-color: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .lang-switcher button:hover { background-color: white; color: #2c3e50; }
+
+        h1 { margin-top: 60px; font-size: 2.5rem; }
+        .controls { margin-bottom: 30px; display: flex; align-items: center; gap: 20px;}
+        .controls button { padding: 10px 20px; font-size: 1.2rem; cursor: pointer; background-color: #27ae60; color: white; border: none; border-radius: 8px; transition: 0.2s;}
+        .controls button:hover { background-color: #219653; transform: scale(1.05);}
 
         /* 3D сцена для переворота карточки */
-        .scene {
-            width: 700px;
-            height: 450px;
-            perspective: 1000px;
-        }
-
-        .card {
-            width: 100%; height: 100%;
-            position: relative;
-            transition: transform 0.8s;
-            transform-style: preserve-3d;
-            cursor: pointer;
-        }
-
+        .scene { width: 700px; height: 450px; perspective: 1000px; }
+        .card { width: 100%; height: 100%; position: relative; transition: transform 0.8s; transform-style: preserve-3d; cursor: pointer; }
         .card.is-flipped { transform: rotateY(180deg); }
-
-        .card__face {
-            position: absolute;
-            width: 100%; height: 100%;
-            backface-visibility: hidden;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            padding: 40px;
-            box-sizing: border-box;
-            background: white;
-            color: #333;
-        }
-
-        .card__face--front {
-            display: flex; flex-direction: column; justify-content: space-around;
-        }
-
-        .card__face--back {
-            background: linear-gradient(135deg, #6a1b9a, #8e44ad);
-            color: white;
-            transform: rotateY(180deg);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-
+        .card__face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 40px; box-sizing: border-box; background: white; color: #333; }
+        .card__face--front { display: flex; flex-direction: column; justify-content: space-around; }
+        .card__face--back { background: linear-gradient(135deg, #6a1b9a, #8e44ad); color: white; transform: rotateY(180deg); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        
         .q-title { font-weight: bold; color: #6a1b9a; font-size: 1.1rem; margin-bottom: 5px;}
         .q-answer { font-size: 1.3rem; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;}
-        
         .winner-name { font-size: 4rem; font-weight: bold; margin: 0;}
         .winner-subtitle { font-size: 1.5rem; opacity: 0.8;}
     </style>
 </head>
 <body>
 
-    <h1>Кто этот коллега? 🤔</h1>
+    <div class="top-controls">
+        <a href="trainings.html" class="back-button" data-i18n="backBtn">◀ Назад</a>
+        <div class="lang-switcher">
+            <button onclick="setLanguage('kk')">KZ</button>
+            <button onclick="setLanguage('ru')">RU</button>
+            <button onclick="setLanguage('en')">EN</button>
+        </div>
+    </div>
+
+    <h1 data-i18n="mainTitle">Кто этот коллега? 🤔</h1>
     
     <div class="controls">
-        <button onclick="loadNextCard()">Следующий участник ⏭️</button>
-        <span id="counter" style="font-size: 1.2rem; margin-left: 20px;">Загрузка...</span>
+        <button onclick="loadNextCard()" data-i18n="btnNext">Следующий участник ⏭️</button>
+        <span id="counter" style="font-size: 1.2rem;">Загрузка...</span>
     </div>
 
     <div class="scene">
         <div class="card" id="flipCard" onclick="flipCard()">
-            <!-- Лицевая сторона (Анкета) -->
             <div class="card__face card__face--front">
-                <div><div class="q-title">IT-суперспособность:</div><div class="q-answer" id="ans1">-</div></div>
-                <div><div class="q-title">Вместо информатики вел(а) бы:</div><div class="q-answer" id="ans2">-</div></div>
-                <div><div class="q-title">Отдых на выходных:</div><div class="q-answer" id="ans3">-</div></div>
-                <div><div class="q-title">Любимая игра/вселенная:</div><div class="q-answer" id="ans4">-</div></div>
-                <div><div class="q-title">Коронное блюдо:</div><div class="q-answer" id="ans5">-</div></div>
+                <div><div class="q-title" data-i18n="q1">IT-суперспособность:</div><div class="q-answer" id="ans1">-</div></div>
+                <div><div class="q-title" data-i18n="q2">Вместо информатики вел(а) бы:</div><div class="q-answer" id="ans2">-</div></div>
+                <div><div class="q-title" data-i18n="q3">Отдых на выходных:</div><div class="q-answer" id="ans3">-</div></div>
+                <div><div class="q-title" data-i18n="q4">Любимая игра/вселенная:</div><div class="q-answer" id="ans4">-</div></div>
+                <div><div class="q-title" data-i18n="q5">Коронное блюдо:</div><div class="q-answer" id="ans5">-</div></div>
             </div>
             
-            <!-- Оборотная сторона (Имя) -->
             <div class="card__face card__face--back">
-                <p class="winner-subtitle">Это...</p>
-                <h2 class="winner-name" id="ansName">ИМЯ СКРЫТО</h2>
+                <p class="winner-subtitle" data-i18n="winnerSub">Это...</p>
+                <h2 class="winner-name" id="ansName" data-i18n="winnerName">ИМЯ СКРЫТО</h2>
             </div>
         </div>
     </div>
 
     <script>
-        // ВСТАВЬТЕ ТОТ ЖЕ САМЫЙ КОНФИГ!
+        // --- СЛОВАРЬ ПЕРЕВОДОВ ---
+        const translations = {
+            ru: {
+                backBtn: "◀ Назад", mainTitle: "Кто этот коллега? 🤔", btnNext: "Следующий участник ⏭️",
+                q1: "IT-суперспособность:", q2: "Вместо информатики вел(а) бы:", q3: "Отдых на выходных:",
+                q4: "Любимая игра/вселенная:", q5: "Коронное блюдо:", winnerSub: "Это...", winnerName: "ИМЯ СКРЫТО",
+                countText: "Анкет в базе: ", alertEmpty: "Анкет пока нет!", alertEnd: "Анкеты закончились!"
+            },
+            kk: {
+                backBtn: "◀ Артқа", mainTitle: "Бұл қай әріптес? 🤔", btnNext: "Келесі қатысушы ⏭️",
+                q1: "IT-суперқабілеті:", q2: "Информатика орнына қандай пән:", q3: "Демалыстағы демалыс:",
+                q4: "Сүйікті ойын/ғалам:", q5: "Фирмалық тағам:", winnerSub: "Бұл...", winnerName: "АТЫ ЖАСЫРЫЛҒАН",
+                countText: "Базадағы сауалнамалар: ", alertEmpty: "Сауалнамалар әзірше жоқ!", alertEnd: "Сауалнамалар аяқталды!"
+            },
+            en: {
+                backBtn: "◀ Back", mainTitle: "Who is this colleague? 🤔", btnNext: "Next participant ⏭️",
+                q1: "IT superpower:", q2: "Alternative subject:", q3: "Weekend relaxation:",
+                q4: "Favorite game/universe:", q5: "Signature dish:", winnerSub: "This is...", winnerName: "NAME HIDDEN",
+                countText: "Profiles in base: ", alertEmpty: "No profiles yet!", alertEnd: "Out of profiles!"
+            }
+        };
+
+        let currentLang = 'ru';
+        let profilesCount = 0; // Сохраняем кол-во анкет для перевода на лету
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    el.innerHTML = translations[lang][key];
+                }
+            });
+            
+            // Обновляем текст счетчика при смене языка
+            document.getElementById("counter").innerText = translations[currentLang].countText + profilesCount;
+            localStorage.setItem('siteLanguage', lang);
+        }
+
+        window.onload = () => {
+            const savedLang = localStorage.getItem('siteLanguage') || 'ru';
+            setLanguage(savedLang);
+        };
+
+        // ВСТАВЬТЕ СЮДА ВАШ firebaseConfig!
         const firebaseConfig = {
           apiKey: "AIzaSyDPN8eYRrU3JbBRs12MeROOu3zd7o9QIgU",
           authDomain: "kartochki-ade77.firebaseapp.com",
@@ -119,7 +127,7 @@
           messagingSenderId: "467392945380",
           appId: "1:467392945380:web:cd7bb9d8c4f2998003e0f1",
           measurementId: "G-NY9BN4G7LT"
-        };
+        };    
         
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -127,35 +135,35 @@
         let profiles = [];
         let currentIndex = -1;
 
-        // Загружаем данные из базы
         db.ref("training_profiles").on("value", (snapshot) => {
             profiles = [];
             snapshot.forEach((child) => {
                 profiles.push(child.val());
             });
             
-            // Перемешиваем массив, чтобы было непредсказуемо (алгоритм Фишера-Йетса)
+            // Перемешиваем анкеты
             for (let i = profiles.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [profiles[i], profiles[j]] = [profiles[j], profiles[i]];
             }
             
-            document.getElementById("counter").innerText = `Анкет в базе: ${profiles.length}`;
+            profilesCount = profiles.length;
+            document.getElementById("counter").innerText = translations[currentLang].countText + profilesCount;
+            
             if(currentIndex === -1 && profiles.length > 0) loadNextCard();
         });
 
         function loadNextCard() {
-            if (profiles.length === 0) return alert("Анкет пока нет!");
+            if (profiles.length === 0) return alert(translations[currentLang].alertEmpty);
             
             currentIndex++;
             if (currentIndex >= profiles.length) {
-                alert("Анкеты закончились!");
-                currentIndex = 0; // Начинаем заново
+                alert(translations[currentLang].alertEnd);
+                currentIndex = 0; 
             }
 
             const p = profiles[currentIndex];
             
-            // Заполняем карточку
             document.getElementById("ans1").innerText = p.q1;
             document.getElementById("ans2").innerText = p.q2;
             document.getElementById("ans3").innerText = p.q3;
@@ -163,15 +171,22 @@
             document.getElementById("ans5").innerText = p.q5;
             document.getElementById("ansName").innerText = p.name;
 
-            // Если карточка перевернута (показывает имя), возвращаем её в исходное положение
             const card = document.getElementById("flipCard");
             if (card.classList.contains("is-flipped")) {
                 card.classList.remove("is-flipped");
+                // Возвращаем надпись ИМЯ СКРЫТО при перевороте новой карточки
+                setTimeout(() => { document.getElementById("ansName").innerText = translations[currentLang].winnerName; }, 400);
             }
         }
 
         function flipCard() {
-            document.getElementById("flipCard").classList.toggle("is-flipped");
+            const card = document.getElementById("flipCard");
+            card.classList.toggle("is-flipped");
+            
+            // Показываем реальное имя, когда карточка перевернута
+            if (card.classList.contains("is-flipped")) {
+                setTimeout(() => { document.getElementById("ansName").innerText = profiles[currentIndex].name; }, 300);
+            }
         }
     </script>
 </body>
