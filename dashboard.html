@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Экран ведущего | Угадай кто</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #2c3e50; /* Темный фон для проектора */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        
+        h1 { margin-top: 30px; font-size: 2.5rem; }
+        
+        .controls { margin-bottom: 30px; }
+        .controls button {
+            padding: 10px 20px; font-size: 1.2rem; cursor: pointer;
+            background-color: #27ae60; color: white; border: none;
+            border-radius: 8px; margin: 0 10px;
+        }
+
+        /* 3D сцена для переворота карточки */
+        .scene {
+            width: 700px;
+            height: 450px;
+            perspective: 1000px;
+        }
+
+        .card {
+            width: 100%; height: 100%;
+            position: relative;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .card.is-flipped { transform: rotateY(180deg); }
+
+        .card__face {
+            position: absolute;
+            width: 100%; height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            padding: 40px;
+            box-sizing: border-box;
+            background: white;
+            color: #333;
+        }
+
+        .card__face--front {
+            display: flex; flex-direction: column; justify-content: space-around;
+        }
+
+        .card__face--back {
+            background: linear-gradient(135deg, #6a1b9a, #8e44ad);
+            color: white;
+            transform: rotateY(180deg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .q-title { font-weight: bold; color: #6a1b9a; font-size: 1.1rem; margin-bottom: 5px;}
+        .q-answer { font-size: 1.3rem; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;}
+        
+        .winner-name { font-size: 4rem; font-weight: bold; margin: 0;}
+        .winner-subtitle { font-size: 1.5rem; opacity: 0.8;}
+    </style>
+</head>
+<body>
+
+    <h1>Кто этот коллега? 🤔</h1>
+    
+    <div class="controls">
+        <button onclick="loadNextCard()">Следующий участник ⏭️</button>
+        <span id="counter" style="font-size: 1.2rem; margin-left: 20px;">Загрузка...</span>
+    </div>
+
+    <div class="scene">
+        <div class="card" id="flipCard" onclick="flipCard()">
+            <!-- Лицевая сторона (Анкета) -->
+            <div class="card__face card__face--front">
+                <div><div class="q-title">IT-суперспособность:</div><div class="q-answer" id="ans1">-</div></div>
+                <div><div class="q-title">Вместо информатики вел(а) бы:</div><div class="q-answer" id="ans2">-</div></div>
+                <div><div class="q-title">Отдых на выходных:</div><div class="q-answer" id="ans3">-</div></div>
+                <div><div class="q-title">Любимая игра/вселенная:</div><div class="q-answer" id="ans4">-</div></div>
+                <div><div class="q-title">Коронное блюдо:</div><div class="q-answer" id="ans5">-</div></div>
+            </div>
+            
+            <!-- Оборотная сторона (Имя) -->
+            <div class="card__face card__face--back">
+                <p class="winner-subtitle">Это...</p>
+                <h2 class="winner-name" id="ansName">ИМЯ СКРЫТО</h2>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ВСТАВЬТЕ ТОТ ЖЕ САМЫЙ КОНФИГ!
+        const firebaseConfig = {
+            apiKey: "ВАШ_API_KEY",
+            authDomain: "ВАШ_PROJECT.firebaseapp.com",
+            databaseURL: "ВАШ_DATABASE_URL",
+            projectId: "ВАШ_PROJECT_ID",
+            storageBucket: "ВАШ_BUCKET",
+            messagingSenderId: "ВАШ_SENDER_ID",
+            appId: "ВАШ_APP_ID"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        
+        let profiles = [];
+        let currentIndex = -1;
+
+        // Загружаем данные из базы
+        db.ref("training_profiles").on("value", (snapshot) => {
+            profiles = [];
+            snapshot.forEach((child) => {
+                profiles.push(child.val());
+            });
+            
+            // Перемешиваем массив, чтобы было непредсказуемо (алгоритм Фишера-Йетса)
+            for (let i = profiles.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [profiles[i], profiles[j]] = [profiles[j], profiles[i]];
+            }
+            
+            document.getElementById("counter").innerText = `Анкет в базе: ${profiles.length}`;
+            if(currentIndex === -1 && profiles.length > 0) loadNextCard();
+        });
+
+        function loadNextCard() {
+            if (profiles.length === 0) return alert("Анкет пока нет!");
+            
+            currentIndex++;
+            if (currentIndex >= profiles.length) {
+                alert("Анкеты закончились!");
+                currentIndex = 0; // Начинаем заново
+            }
+
+            const p = profiles[currentIndex];
+            
+            // Заполняем карточку
+            document.getElementById("ans1").innerText = p.q1;
+            document.getElementById("ans2").innerText = p.q2;
+            document.getElementById("ans3").innerText = p.q3;
+            document.getElementById("ans4").innerText = p.q4;
+            document.getElementById("ans5").innerText = p.q5;
+            document.getElementById("ansName").innerText = p.name;
+
+            // Если карточка перевернута (показывает имя), возвращаем её в исходное положение
+            const card = document.getElementById("flipCard");
+            if (card.classList.contains("is-flipped")) {
+                card.classList.remove("is-flipped");
+            }
+        }
+
+        function flipCard() {
+            document.getElementById("flipCard").classList.toggle("is-flipped");
+        }
+    </script>
+</body>
+</html>
